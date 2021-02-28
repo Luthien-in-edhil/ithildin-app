@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.doublerobot</groupId>
+    <artifactId>maven-jpackage-template</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <main-class>com.doublerobot.HelloWorld</main-class>
+        <!-- This should be the . version of the project artifactId -->
+        <java-mod-name>maven.jpackage.template</java-mod-name>
+
+        <!-- These version numbers are used in both the macOS and Windows profiles -->
+        <javafx-mods-version>javafx-jmods-15.0.1</javafx-mods-version>
+        <javafx-libs-version>javafx-sdk-15.0.1</javafx-libs-version>
+        <javafx.libs>${project.basedir}/${platform}-javafx/${javafx-libs-version}/lib/</javafx.libs>
+        <javafx.mods>${project.basedir}/${platform}-javafx/${javafx-mods-version}/</javafx.mods>
+
+        <!-- These are the modules explicitly used by the project. You may want to add/remove if you
+         are using other modules. -->
+        <modules-in-use>javafx.base,javafx.controls,javafx.graphics,java.logging</modules-in-use>
+
+        <!-- Eliminate warnings about UTF-8 in the build -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+
+        <!-- This project uses the https://github.com/wiverson/jtoolprovider-plugin to invoke jdeps and jpackage -->
+        <jtoolprovider.version>1.0.25</jtoolprovider.version>
+    </properties>
+
+    <dependencies>
+        <!-- Base JavaFX import. This dependency is provided via a module, so we don't want it included in the
+         shaded master jar, but by including it here it it works nicely with IDEs such as IntelliJ. -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>15</version>
+        </dependency>
+        <!-- This dependency is a normal Maven dependency, here mainly as an example. It brings in other transitive
+         dependencies as well. We want to include the contents of this (and all of the other transitive dependencies
+         in our final shaded master jar. This particular dependency generates fake data for testing. -->
+        <dependency>
+            <groupId>com.github.javafaker</groupId>
+            <artifactId>javafaker</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${project.basedir}/src/packaging</directory>
+                <filtering>true</filtering>
+                <targetPath>${project.build.directory}/packaging</targetPath>
+            </resource>
+        </resources>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.9.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-project-info-reports-plugin</artifactId>
+                    <version>3.1.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.1.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>io.github.wiverson</groupId>
+                    <artifactId>jtoolprovider-plugin</artifactId>
+                    <version>${jtoolprovider.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>3.0.0-M1</version>
+                <!-- This is an app, so we don't want to install it in the local Maven repository -->
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <release>${maven.compiler.target}</release>
+                </configuration>
+            </plugin>
+            <plugin>
+                <!-- Plugin to make working with JavaFX nicer. See https://github.com/openjfx/javafx-maven-plugin -->
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.5</version>
+                <configuration>
+                    <mainClass>${main-class}</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
+                <!-- The shade plugin is used to generate a merged JAR, which in turn is analyzed to sort out
+                dependencies. It's not actually used to generate an executable JAR, as you might see in other
+                projects. -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version>
+                <configuration>
+                    <finalName>${project.artifactId}</finalName>
+                    <!-- Use this section to filter out items by artifactId from the shaded jar. Here we are excluding
+                    the JavaFX SDK - those will be added in as platform-specific libraries later.  You would do something
+                     similar for other artifacts that would be supplied as modules. -->
+                    <artifactSet>
+                        <excludes>
+                            <exclude>org.openjfx:javafx-base</exclude>
+                            <exclude>org.openjfx:javafx-controls</exclude>
+                            <exclude>org.openjfx:javafx-fxml</exclude>
+                            <exclude>org.openjfx:javafx-graphics</exclude>
+                            <exclude>org.openjfx:javafx-media</exclude>
+                            <exclude>org.openjfx:javafx-swing</exclude>
+                            <exclude>org.openjfx:javafx-web</exclude>
+                        </excludes>
+                    </artifactSet>
+                    <!-- Use this section to filter out items by file name from the shaded jar. Here we are excluding
+                    any module information and manifest data from the shaded jar - they would be incorrect and/or
+                    duplicates given our shaded jar strategy. -->
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>**/module-info.java</exclude>
+                                <exclude>**/module-info.class</exclude>
+                                <exclude>module-info.java</exclude>
+                                <exclude>module-info.class</exclude>
+                                <exclude>META-INF/*.MF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                    <outputDirectory>${project.build.directory}/shaded-jar/</outputDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.0.0</version>
+                <!-- We use the Ant task here to unzip the shaded jar, which we then pass to make jdeps later. -->
+                <executions>
+                    <execution>
+                        <id>prepare</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <unzip src="target/shaded-jar/${project.artifactId}.jar"
+                                       dest="target/unpacked-shade/"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <!-- https://github.com/wiverson/jtoolprovider-plugin -->
+                <groupId>io.github.wiverson</groupId>
+                <artifactId>jtoolprovider-plugin</artifactId>
+                <version>${jtoolprovider.version}</version>
+                <executions>
+                    <!-- We use the jdeps tool here on the exploded directory to automatically generate a module-info.java
+                    file for the entire shaded jar. You'll notice that we are explicitly passing in the JavaFX modules here -
+                    you may want to tweak this as you use (or don't use) different modules. The smaller the set of modules,
+                    the smaller the final app will be.
+                    -->
+                    <execution>
+                        <id>jdeps</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>java-tool</goal>
+                        </goals>
+                        <configuration>
+                            <toolName>jdeps</toolName>
+                            <modulePath>${javafx.libs}</modulePath>
+                            <addModules>javafx.base,javafx.controls,javafx.graphics,java.logging</addModules>
+                            <generateModuleInfo>${project.build.directory}/work</generateModuleInfo>
+                            <args>
+                                <arg>${project.build.directory}/shaded-jar/${project.artifactId}.jar</arg>
+                            </args>
+                        </configuration>
+                    </execution>
+                    <!-- The command that actually generates the installer. The options for each platform
+                    are found the /src/packaging directory. These files are copied into the target directory by
+                    the Maven resources plugin, which does the filtering to replace the original values with
+                    the actual Maven properties.
+                    -->
+                    <execution>
+                        <id>jpackage</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>java-tool</goal>
+                        </goals>
+                        <configuration>
+                            <toolName>jpackage</toolName>
+                            <args>@${project.build.directory}/packaging/${platform}-jpackage.txt</args>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <!-- This plugin compiles and attaches the generated module-info back to the shaded jar -
+                now we have everything we need to start generating an installer! -->
+                <groupId>org.moditect</groupId>
+                <artifactId>moditect-maven-plugin</artifactId>
+                <version>1.0.0.RC1</version>
+                <executions>
+                    <execution>
+                        <id>add-module-infos</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>add-module-info</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/modules</outputDirectory>
+                            <overwriteExistingFiles>true</overwriteExistingFiles>
+                            <modules>
+                                <module>
+                                    <file>${project.build.directory}/shaded-jar/${project.artifactId}.jar</file>
+                                    <moduleInfoFile>${project.build.directory}/work/${java-mod-name}/module-info.java
+                                    </moduleInfoFile>
+                                </module>
+                            </modules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <profiles>
+        <profile>
+            <id>add-jlink-package</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.github.wiverson</groupId>
+                        <artifactId>jtoolprovider-plugin</artifactId>
+                        <version>${jtoolprovider.version}</version>
+                        <!-- jlink here generates an image and launcher for your app, but does not wrap it
+                        with an installer (like jpackage). This execution is not run by default - if you are using
+                        jpackage, it's calling jlink for you anyways, so this would just make the build slower.
+                        It's bound to the verify goal to make sure all of the other plugins run first instead.
+                        From a purist, it would probably make more sense to bind this to install (like jpackage is),
+                        but by putting this on verify it means that you can quickly flip back and forth between
+                        jlink builds (in IntelliJ) and jpackage builds (via command-line Maven runner).
+                        -->
+                        <executions>
+                            <execution>
+                                <id>jlink</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>java-tool</goal>
+                                </goals>
+                                <configuration>
+                                    <toolName>jlink</toolName>
+                                    <modulePath>${java.home}/jmods/:${project.build.directory}/modules/:${javafx.mods}
+                                    </modulePath>
+                                    <addModules>${java-mod-name},${modules-in-use}</addModules>
+                                    <launcher>${project.artifactId}=${java-mod-name}/${main-class}</launcher>
+                                    <output>${project.build.directory}/jlink-image</output>
+                                    <args>
+                                        <arg>--strip-debug</arg>
+                                        <arg>--no-header-files</arg>
+                                        <arg>--no-man-pages</arg>
+                                        <arg>--compress=2</arg>
+                                    </args>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- We use the built-in Maven profile activation system to set the platform property.
+        These properties are then use to build the directory paths to the platform specific resources.
+         -->
+        <profile>
+            <id>unix-active</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+            </activation>
+            <properties>
+                <platform>unix</platform>
+            </properties>
+        </profile>
+        <profile>
+            <id>windows-active</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <properties>
+                <platform>windows</platform>
+            </properties>
+        </profile>
+        <profile>
+            <id>mac-active</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+            </activation>
+            <properties>
+                <platform>mac</platform>
+            </properties>
+        </profile>
+    </profiles>
+</project>
