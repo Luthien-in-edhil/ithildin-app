@@ -82,7 +82,7 @@ C:\Users\wiver\src\shade-test>dir target\*.exe
 
  Directory of C:\Users\wiver\src\shade-test\target
 
-11/02/2020  11:33 AM        37,172,224 TestApp-1.0.exe
+11/02/2020  11:33 AM        37,172,224 Ithildin-0.2.exe
                1 File(s)     37,172,224 bytes
                0 Dir(s)  353,618,784,256 bytes free
 
