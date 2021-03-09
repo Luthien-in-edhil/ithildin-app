@@ -53,9 +53,6 @@
 
         <maven.compiler.source>15</maven.compiler.source>
         <maven.compiler.target>15</maven.compiler.target>
-
-        <!-- This project uses the https://github.com/wiverson/jtoolprovider-plugin to invoke jdeps and jpackage -->
-        <jtoolprovider.version>1.0.31</jtoolprovider.version>
     </properties>
 
     <dependencyManagement>
@@ -74,11 +71,36 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>io.projectreactor.tools</groupId>
+            <artifactId>blockhound</artifactId>
+            <version>1.0.4.RELEASE</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/javax.enterprise/cdi-api -->
+        <dependency>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+            <version>2.0</version>
         </dependency>
 
         <dependency>
@@ -150,11 +172,6 @@
                     <artifactId>maven-dependency-plugin</artifactId>
                     <version>3.1.2</version>
                 </plugin>
-                <plugin>
-                    <groupId>io.github.wiverson</groupId>
-                    <artifactId>jtoolprovider-plugin</artifactId>
-                    <version>${jtoolprovider.version}</version>
-                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -185,7 +202,7 @@
                 <!-- https://github.com/wiverson/jtoolprovider-plugin -->
                 <groupId>io.github.wiverson</groupId>
                 <artifactId>jtoolprovider-plugin</artifactId>
-                <version>1.0.31</version>
+                <version>1.0.32</version>
                 <executions>
                     <execution>
                         <!-- https://github.com/wiverson/jtoolprovider-plugin/blob/main/collect-modules-doc.md -->
@@ -210,6 +227,7 @@
                             </ignoreJars>
                             <stripJars>
                                 <jar>HikariCP</jar>
+                                <jar>log4j-api</jar>
                             </stripJars>
                             <debug>true</debug>
                         </configuration>
@@ -233,13 +251,18 @@
                             <cleanDirectories>
                                 <directory>${project.build.directory}/work</directory>
                             </cleanDirectories>
-                            <multiRelease>${java.specification.version}</multiRelease>
-                            <modulePath>${java.home}/jmods/:${project.build.directory}/modules:${javafx.mods}/:${project.build.directory}/declared-not-modules:${project.build.directory}/declared-modules
+                            <modulePath>
+                                ${java.home}/jmods/:${javafx.mods}:${project.build.directory}/declared-not-modules:${project.build.directory}/declared-modules
                             </modulePath>
-                            <generateModuleInfo>${project.build.directory}/work</generateModuleInfo>
                             <args>
+                                <arg>--ignore-missing-deps</arg>
+                                <arg>--api-only</arg>
                                 <arg>--no-recursive</arg>
-<!--                                <arg>&#45;&#45;ignore-missing-deps</arg>-->
+                                <arg>--add-modules=ALL-MODULE-PATH</arg>
+                                <arg>--multi-release</arg>
+                                <arg>${java.specification.version}</arg>
+                                <arg>--generate-open-module</arg>
+                                <arg>${project.build.directory}/work</arg>
                                 <arg>${project.build.directory}/${project.build.finalName}.jar</arg>
                             </args>
                         </configuration>
@@ -282,7 +305,8 @@
                             <modules>
                                 <module>
                                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
-                                    <moduleInfoFile>${project.build.directory}/work/${java-mod-name}/module-info.java
+                                    <moduleInfoFile>
+                                        ${project.build.directory}/work/${java-mod-name}/versions/${java.specification.version}/module-info.java
                                     </moduleInfoFile>
                                 </module>
                             </modules>
