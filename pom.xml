@@ -18,7 +18,7 @@
     <properties>
         <main-class>aduial.ithildin.IthildinBootApplication</main-class>
         <!-- These options affect the generated installer -->
-        <app.name>TestApp</app.name>
+        <app.name>ithildin</app.name>
         <!-- This converts the build timestamp to a Windows-installer friendly version number. Note that Maven
          generated timestamp is in UTC, not local time.
          For more information see:
