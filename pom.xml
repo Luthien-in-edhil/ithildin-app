@@ -18,7 +18,7 @@
     <properties>
         <main-class>aduial.ithildin.IthildinBootApplication</main-class>
         <!-- These options affect the generated installer -->
-        <app.name>TestApp</app.name>
+        <app.name>ithildin</app.name>
         <!-- This converts the build timestamp to a Windows-installer friendly version number. Note that Maven
          generated timestamp is in UTC, not local time.
          For more information see:
@@ -53,9 +53,6 @@
 
         <maven.compiler.source>15</maven.compiler.source>
         <maven.compiler.target>15</maven.compiler.target>
-
-        <!-- This project uses the https://github.com/wiverson/jtoolprovider-plugin to invoke jdeps and jpackage -->
-        <jtoolprovider.version>1.0.30</jtoolprovider.version>
     </properties>
 
     <dependencyManagement>
@@ -76,52 +73,34 @@
             <artifactId>spring-boot-starter</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>com.zaxxer</groupId>
-                    <artifactId>HikariCP</artifactId>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-
-        <!-- using newer version because the included one gives an error while packaging -->
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-            <version>4.0.3</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sun.activation</groupId>
-            <artifactId>jakarta.activation</artifactId>
-            <version>1.2.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>jakarta.annotation</groupId>
-            <artifactId>jakarta.annotation-api</artifactId>
-            <version>1.3.5</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-to-slf4j</artifactId>
-            <version>2.13.3</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>1.27</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.30</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>io.projectreactor.tools</groupId>
+            <artifactId>blockhound</artifactId>
+            <version>1.0.4.RELEASE</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/javax.enterprise/cdi-api -->
+        <dependency>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+            <version>2.0</version>
         </dependency>
 
         <dependency>
@@ -135,6 +114,12 @@
             <groupId>net.rgielen</groupId>
             <artifactId>javafx-weaver-spring-boot-starter</artifactId>
             <version>${fxweaver.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>1.10.21</version>
         </dependency>
 
         <!-- Base JavaFX import. This dependency is provided via a module, so we don't want it included in the
@@ -182,16 +167,6 @@
                     <artifactId>maven-project-info-reports-plugin</artifactId>
                     <version>3.1.1</version>
                 </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.1.2</version>
-                </plugin>
-                <plugin>
-                    <groupId>io.github.wiverson</groupId>
-                    <artifactId>jtoolprovider-plugin</artifactId>
-                    <version>${jtoolprovider.version}</version>
-                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -199,6 +174,15 @@
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>3.1.2</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -222,59 +206,8 @@
                 <!-- https://github.com/wiverson/jtoolprovider-plugin -->
                 <groupId>io.github.wiverson</groupId>
                 <artifactId>jtoolprovider-plugin</artifactId>
-                <version>1.0.30</version>
+                <version>1.0.32</version>
                 <executions>
-                    <execution>
-                        <!-- https://github.com/wiverson/jtoolprovider-plugin/blob/main/collect-modules-doc.md -->
-                        <id>collect-modules</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>collect-modules</goal>
-                        </goals>
-                        <configuration>
-                            <providedModuleDirectories>
-                                <directory>${javafx.mods}</directory>
-                                <directory>${java.home}\jmods\</directory>
-                            </providedModuleDirectories>
-                            <ignoreJars>
-                                <jar>javafx-controls-15.jar</jar>
-                                <jar>javafx-fxml-15.jar</jar>
-                                <jar>javafx-web-15.jar</jar>
-                                <jar>javafx-graphics-15.jar</jar>
-                                <jar>javafx-base-15.jar</jar>
-                            </ignoreJars>
-                            <stripJars>
-                                <jar>HikariCP</jar>
-                            </stripJars>
-                        </configuration>
-                    </execution>
-
-                    <!-- We use the jdeps tool here on the exploded directory to automatically generate a module-info.java
-                    file for the entire shaded jar. You'll notice that we are explicitly passing in the JavaFX modules here -
-                    you may want to tweak this as you use (or don't use) different modules. The smaller the set of modules,
-                    the smaller the final app will be.
-
-                    https://github.com/wiverson/jtoolprovider-plugin/blob/main/java-tool-doc.md
-                    -->
-                    <execution>
-                        <id>jdeps</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>java-tool</goal>
-                        </goals>
-                        <configuration>
-                            <toolName>jdeps</toolName>
-                            <cleanDirectories>
-                                <directory>${project.build.directory}/work</directory>
-                            </cleanDirectories>
-                            <modulePath>${javafx.libs}${path.separator}${project.build.directory}/dependencies
-                            </modulePath>
-                            <generateModuleInfo>${project.build.directory}/work</generateModuleInfo>
-                            <args>
-                                <arg>${project.build.directory}/${project.build.finalName}.jar</arg>
-                            </args>
-                        </configuration>
-                    </execution>
                     <!-- The command that actually generates the installer. The options for each platform
                     are found the /src/packaging directory. These files are copied into the target directory by
                     the Maven resources plugin, which does the filtering to replace the original values with
@@ -296,30 +229,12 @@
                 </executions>
             </plugin>
             <plugin>
-                <!-- This plugin compiles module-info for the code in this project -->
-                <groupId>org.moditect</groupId>
-                <artifactId>moditect-maven-plugin</artifactId>
-                <version>1.0.0.RC1</version>
-                <executions>
-                    <execution>
-                        <id>add-module-infos</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>add-module-info</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/modules</outputDirectory>
-                            <overwriteExistingFiles>true</overwriteExistingFiles>
-                            <modules>
-                                <module>
-                                    <file>${project.build.directory}/${project.build.finalName}.jar</file>
-                                    <moduleInfoFile>${project.build.directory}/work/${java-mod-name}/module-info.java
-                                    </moduleInfoFile>
-                                </module>
-                            </modules>
-                        </configuration>
-                    </execution>
-                </executions>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <outputDirectory>${project.build.directory}/dependency</outputDirectory>
+                </configuration>
             </plugin>
         </plugins>
     </build>
