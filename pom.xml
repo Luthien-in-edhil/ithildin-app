@@ -167,11 +167,6 @@
                     <artifactId>maven-project-info-reports-plugin</artifactId>
                     <version>3.1.1</version>
                 </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.1.2</version>
-                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -179,6 +174,15 @@
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>3.1.2</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -204,69 +208,6 @@
                 <artifactId>jtoolprovider-plugin</artifactId>
                 <version>1.0.32</version>
                 <executions>
-                    <execution>
-                        <!-- https://github.com/wiverson/jtoolprovider-plugin/blob/main/collect-modules-doc.md -->
-                        <id>collect-modules</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>collect-modules</goal>
-                        </goals>
-                        <configuration>
-                            <providedModuleDirectories>
-                                <directory>${javafx.mods}</directory>
-                                <directory>${java.home}\jmods\</directory>
-                            </providedModuleDirectories>
-                            <ignoreJars>
-                                <jar>javafx-controls-15.jar</jar>
-                                <jar>javafx-fxml-15.jar</jar>
-                                <jar>javafx-web-15.jar</jar>
-                                <jar>javafx-graphics-15.jar</jar>
-                                <jar>javafx-base-15.jar</jar>
-                                <jar>jakarta.xml.bind-api</jar>
-                                <jar>jaxb-runtime</jar>
-                            </ignoreJars>
-                            <stripJars>
-                                <jar>HikariCP</jar>
-                                <jar>log4j-api</jar>
-                            </stripJars>
-                            <debug>true</debug>
-                        </configuration>
-                    </execution>
-
-                    <!-- We use the jdeps tool here on the exploded directory to automatically generate a module-info.java
-                    file for the entire shaded jar. You'll notice that we are explicitly passing in the JavaFX modules here -
-                    you may want to tweak this as you use (or don't use) different modules. The smaller the set of modules,
-                    the smaller the final app will be.
-
-                    https://github.com/wiverson/jtoolprovider-plugin/blob/main/java-tool-doc.md
-                    -->
-                    <execution>
-                        <id>jdeps</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>java-tool</goal>
-                        </goals>
-                        <configuration>
-                            <toolName>jdeps</toolName>
-                            <cleanDirectories>
-                                <directory>${project.build.directory}/work</directory>
-                            </cleanDirectories>
-                            <modulePath>
-                                ${java.home}/jmods/:${javafx.mods}:${project.build.directory}/declared-not-modules:${project.build.directory}/declared-modules
-                            </modulePath>
-                            <args>
-                                <arg>--ignore-missing-deps</arg>
-                                <arg>--api-only</arg>
-                                <arg>--no-recursive</arg>
-                                <arg>--add-modules=ALL-MODULE-PATH</arg>
-                                <arg>--multi-release</arg>
-                                <arg>${java.specification.version}</arg>
-                                <arg>--generate-open-module</arg>
-                                <arg>${project.build.directory}/work</arg>
-                                <arg>${project.build.directory}/${project.build.finalName}.jar</arg>
-                            </args>
-                        </configuration>
-                    </execution>
                     <!-- The command that actually generates the installer. The options for each platform
                     are found the /src/packaging directory. These files are copied into the target directory by
                     the Maven resources plugin, which does the filtering to replace the original values with
@@ -288,31 +229,12 @@
                 </executions>
             </plugin>
             <plugin>
-                <!-- This plugin compiles module-info for the code in this project -->
-                <groupId>org.moditect</groupId>
-                <artifactId>moditect-maven-plugin</artifactId>
-                <version>1.0.0.RC1</version>
-                <executions>
-                    <execution>
-                        <id>add-module-infos</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>add-module-info</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/modules</outputDirectory>
-                            <overwriteExistingFiles>true</overwriteExistingFiles>
-                            <modules>
-                                <module>
-                                    <file>${project.build.directory}/${project.build.finalName}.jar</file>
-                                    <moduleInfoFile>
-                                        ${project.build.directory}/work/${java-mod-name}/versions/${java.specification.version}/module-info.java
-                                    </moduleInfoFile>
-                                </module>
-                            </modules>
-                        </configuration>
-                    </execution>
-                </executions>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <outputDirectory>${project.build.directory}/dependency</outputDirectory>
+                </configuration>
             </plugin>
         </plugins>
     </build>
