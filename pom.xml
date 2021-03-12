@@ -8,14 +8,11 @@
     <artifactId>ithildin</artifactId>
     <version>0.2-SNAPSHOT</version>
 
-    <!--    <parent>-->
-    <!--        <groupId>org.springframework.boot</groupId>-->
-    <!--        <artifactId>spring-boot-starter-parent</artifactId>-->
-    <!--        <version>2.4.3</version>-->
-    <!--        <relativePath/> &lt;!&ndash; lookup parent from aduial.ithildin.repository &ndash;&gt;-->
-    <!--    </parent>-->
+    <!-- This description text is included in the Windows installer by default, see win-jpackage.txt -->
+    <description>Sample JavaFX Application</description>
 
     <properties>
+        <!-- Set this to the class with the main method for your application -->
         <main-class>aduial.ithildin.IthildinBootApplication</main-class>
         <!-- These options affect the generated installer -->
         <app.name>ithildin</app.name>
@@ -28,31 +25,29 @@
         <maven.build.timestamp.format>yy.w.ukkmm</maven.build.timestamp.format>
         <app.version>${maven.build.timestamp}</app.version>
 
-        <!-- This should be the . version of the project artifactId -->
-        <java-mod-name>ithildin</java-mod-name>
+        <!-- This property is used to specify the modules included in the (custom) JVM image. -->
+        <!-- Reminder: javafx.web (the embedded browser component) is not included in this project by default due
+        to GitHub template size restrictions. You can download the full SDK from https://openjfx.io -->
+        <jvm.modules>javafx.media,javafx.controls,javafx.fxml,javafx.web,java.logging</jvm.modules>
 
-        <!-- for using the IDE -->
+        <!-- Set the project to UTF-8, avoiding warnings in the build logs -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <maven.compiler.source>15</maven.compiler.source>
+        <maven.compiler.target>15</maven.compiler.target>
+
+        <!-- Used to set both the path to find the JavaFX modules and also the versions for Maven dependencies -->
         <javafx.version>15.0.1</javafx.version>
         <springboot.version>2.4.3</springboot.version>
         <fxweaver.version>1.3.0</fxweaver.version>
         <h2.version>1.4.200</h2.version>
 
-        <!-- These version numbers are used in both the macOS and Windows profiles -->
-        <javafx-mods-version>javafx-jmods-15.0.1</javafx-mods-version>
-        <javafx-libs-version>javafx-sdk-15.0.1</javafx-libs-version>
-        <javafx.libs>${project.basedir}/${platform}-javafx/${javafx-libs-version}/lib/</javafx.libs>
-        <javafx.mods>${project.basedir}/${platform}-javafx/${javafx-mods-version}/</javafx.mods>
-
-        <!-- Eliminate warnings about UTF-8 in the build -->
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <!-- These are the modules explicitly used by the project. You may want to add/remove if you
-         are using other modules. -->
-        <!--        <modules-in-use>javafx.base,javafx.controls,javafx.graphics,javafx.fxml,javafx.web,java.logging</modules-in-use>-->
-        <modules-in-use>javafx.controls,javafx.fxml,javafx.web</modules-in-use>
-
-        <maven.compiler.source>15</maven.compiler.source>
-        <maven.compiler.target>15</maven.compiler.target>
+        <!-- Replace this UUID with a custom one for your project. This ID is used by the Windows installer system
+        to know that an installer is intended to replace/upgrade an earlier version. The easiest thing to do is
+        grab a unique UUID via https://www.uuidgenerator.net -->
+        <windows.upgrade.uuid>aaaaaaaa-0000-aaaa-aaaa-aaaaaaaaaaaa</windows.upgrade.uuid>
+        <!-- This is used to set many user-visible fields in the Windows Installer. See win-jpackage.txt -->
+        <windows.vendor>Sample</windows.vendor>
     </properties>
 
     <dependencyManagement>
@@ -71,65 +66,36 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-logging</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-logging</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
-
-        <dependency>
-            <groupId>io.projectreactor.tools</groupId>
-            <artifactId>blockhound</artifactId>
-            <version>1.0.4.RELEASE</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/javax.enterprise/cdi-api -->
-        <dependency>
-            <groupId>javax.enterprise</groupId>
-            <artifactId>cdi-api</artifactId>
-            <version>2.0</version>
-        </dependency>
-
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>${h2.version}</version>
             <scope>runtime</scope>
         </dependency>
-
         <dependency>
             <groupId>net.rgielen</groupId>
             <artifactId>javafx-weaver-spring-boot-starter</artifactId>
             <version>${fxweaver.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy</artifactId>
-            <version>1.10.21</version>
-        </dependency>
-
         <!-- Base JavaFX import. This dependency is provided via a module, so we don't want it included in the
          shaded master jar, but by including it here it it works nicely with IDEs such as IntelliJ. -->
-
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>${platform}</classifier>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
@@ -143,6 +109,50 @@
             <version>${javafx.version}</version>
             <scope>compile</scope>
         </dependency>
+
+        <!--
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter</artifactId>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-starter-logging</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-data-jpa</artifactId>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-starter-logging</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>-->
+
+        <dependency>
+            <groupId>io.projectreactor.tools</groupId>
+            <artifactId>blockhound</artifactId>
+            <version>1.0.4.RELEASE</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/javax.enterprise/cdi-api -->
+
+        <dependency>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+            <version>2.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>1.10.21</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -155,35 +165,8 @@
                 <targetPath>${project.build.directory}/packaging</targetPath>
             </resource>
         </resources>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-site-plugin</artifactId>
-                    <version>3.9.1</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-project-info-reports-plugin</artifactId>
-                    <version>3.1.1</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
 
         <plugins>
-            <plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.1.2</version>
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
@@ -191,6 +174,37 @@
                 <configuration>
                     <!-- This is an app, so we don't want to install it in the local Maven repository -->
                     <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.1.2</version>
+                <executions>
+                    <execution>
+                        <!-- This copies all of the jar files declared by the Maven build into a single directory.
+                        This makes it easy to assemble the final installer package -->
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <!-- The JavaFX libraries are bundled into the custom JVM, so we don't want to duplicate
+                            them in the bundled app and installer. This command skips all of the JavaFX by groupId. -->
+                            <excludeGroupIds>org.openjfx</excludeGroupIds>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <!-- Put the application jar generated by the project into the dependency folder - the default folder
+                for the maven-dependency-plugin output. -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <outputDirectory>${project.build.directory}/dependency</outputDirectory>
                 </configuration>
             </plugin>
             <plugin>
@@ -206,8 +220,32 @@
                 <!-- https://github.com/wiverson/jtoolprovider-plugin -->
                 <groupId>io.github.wiverson</groupId>
                 <artifactId>jtoolprovider-plugin</artifactId>
-                <version>1.0.32</version>
+                <version>1.0.33</version>
                 <executions>
+                    <!-- This command runs jlink, generating a custom JVM by combining the JavaFX modules bundled in
+                    this project with the JDK modules. -->
+                    <execution>
+                        <id>jlink</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>java-tool</goal>
+                        </goals>
+                        <configuration>
+                            <toolName>jlink</toolName>
+                            <cleanDirectories>${project.build.directory}/jvm-image</cleanDirectories>
+                            <modulePath>${project.basedir}/${platform}-javafx/javafx-jmods-${javafx.version}/
+                            </modulePath>
+                            <addModules>${jvm.modules}</addModules>
+                            <output>${project.build.directory}/jvm-image</output>
+                            <args>
+                                <arg>--strip-native-commands</arg>
+                                <arg>--no-header-files</arg>
+                                <arg>--strip-debug</arg>
+                                <arg>--no-man-pages</arg>
+                                <arg>--compress=2</arg>
+                            </args>
+                        </configuration>
+                    </execution>
                     <!-- The command that actually generates the installer. The options for each platform
                     are found the /src/packaging directory. These files are copied into the target directory by
                     the Maven resources plugin, which does the filtering to replace the original values with
@@ -228,16 +266,77 @@
                     </execution>
                 </executions>
             </plugin>
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.2.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.2.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>3.1.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.9.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-project-info-reports-plugin</artifactId>
+                    <version>3.1.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.1.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.0.0-M5</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+    <reporting>
+        <plugins>
+            <!-- http://mojo.codehaus.org/versions-maven-plugin/version-rules.html -->
+            <!-- This plugin is a utility to find outdated dependencies in your project. Just run mvn site and
+            the resulting HTML reports in target/site will let you know what plugins and dependencies are out of date.
+             -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.0</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>2.8.1</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>dependency-updates-report</report>
+                            <report>plugin-updates-report</report>
+                            <report>property-updates-report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
                 <configuration>
-                    <outputDirectory>${project.build.directory}/dependency</outputDirectory>
+                    <processDependencyManagementTransitive>false</processDependencyManagementTransitive>
                 </configuration>
             </plugin>
         </plugins>
-    </build>
+    </reporting>
     <profiles>
         <!-- We use the built-in Maven profile activation system to set the platform property.
         These properties are then use to build the directory paths to the platform specific resources.
@@ -251,7 +350,7 @@
                 </os>
             </activation>
             <properties>
-                <platform>unix</platform>
+                <platform>linux</platform>
             </properties>
         </profile>
         <profile>
@@ -262,7 +361,7 @@
                 </os>
             </activation>
             <properties>
-                <platform>windows</platform>
+                <platform>win</platform>
             </properties>
         </profile>
         <profile>
@@ -277,4 +376,6 @@
             </properties>
         </profile>
     </profiles>
+    <!-- This entire section is really just Maven bookkeeping, ensuring that the build is using the more
+        recent version of many of these plugins -->
 </project>

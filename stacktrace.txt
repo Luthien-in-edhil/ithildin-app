@@ -1,0 +1,106 @@
+> /Applications/Sandbox/ithildin.app/Contents/MacOS/ithildin
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v2.4.3)
+
+2021-03-12 02:11:18.799  INFO ??? --- [JavaFX-Launcher] o.s.boot.SpringApplication               : Starting application using Java 15.0.1 on doriath.local with PID ??? (started by luthien in /Applications/Sandbox)
+2021-03-12 02:11:18.801  INFO ??? --- [JavaFX-Launcher] o.s.boot.SpringApplication               : No active profile set, falling back to default profiles: default
+2021-03-12 02:11:19.134  WARN ??? --- [JavaFX-Launcher] s.c.a.AnnotationConfigApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'org.springframework.context.annotation.internalCommonAnnotationProcessor': Instantiation of bean failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [org.springframework.context.annotation.CommonAnnotationBeanPostProcessor]: Constructor threw exception; nested exception is java.lang.NoClassDefFoundError: javax/naming/NamingException
+2021-03-12 02:11:19.144  INFO ??? --- [JavaFX-Launcher] ConditionEvaluationReportLoggingListener :
+
+Error starting ApplicationContext. To display the conditions report re-run your application with 'debug' enabled.
+2021-03-12 02:11:19.157 ERROR ??? --- [JavaFX-Launcher] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'org.springframework.context.annotation.internalCommonAnnotationProcessor': Instantiation of bean failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [org.springframework.context.annotation.CommonAnnotationBeanPostProcessor]: Constructor threw exception; nested exception is java.lang.NoClassDefFoundError: javax/naming/NamingException
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateBean(AbstractAutowireCapableBeanFactory.java:1316) ~[spring-beans-5.3.4.jar:5.3.4]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1214) ~[spring-beans-5.3.4.jar:5.3.4]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:564) ~[spring-beans-5.3.4.jar:5.3.4]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:524) ~[spring-beans-5.3.4.jar:5.3.4]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:335) ~[spring-beans-5.3.4.jar:5.3.4]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234) ~[spring-beans-5.3.4.jar:5.3.4]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:333) ~[spring-beans-5.3.4.jar:5.3.4]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:213) ~[spring-beans-5.3.4.jar:5.3.4]
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.registerBeanPostProcessors(PostProcessorRegistrationDelegate.java:237) ~[spring-context-5.3.4.jar:5.3.4]
+	at org.springframework.context.support.AbstractApplicationContext.registerBeanPostProcessors(AbstractApplicationContext.java:761) ~[spring-context-5.3.4.jar:5.3.4]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:566) ~[spring-context-5.3.4.jar:5.3.4]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:767) ~[spring-boot-2.4.3.jar:2.4.3]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:759) ~[spring-boot-2.4.3.jar:2.4.3]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:426) ~[spring-boot-2.4.3.jar:2.4.3]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:326) ~[spring-boot-2.4.3.jar:2.4.3]
+	at org.springframework.boot.builder.SpringApplicationBuilder.run(SpringApplicationBuilder.java:144) ~[spring-boot-2.4.3.jar:2.4.3]
+	at aduial.ithildin.application.IthildinJfxApplication.init(IthildinJfxApplication.java:22) ~[ithildin-0.2-SNAPSHOT.jar:na]
+	at javafx.graphics/com.sun.javafx.application.LauncherImpl.launchApplication1(Unknown Source) ~[javafx.graphics:na]
+	at javafx.graphics/com.sun.javafx.application.LauncherImpl.lambda$launchApplication$2(Unknown Source) ~[javafx.graphics:na]
+	at java.base/java.lang.Thread.run(Unknown Source) ~[na:na]
+Caused by: org.springframework.beans.BeanInstantiationException: Failed to instantiate [org.springframework.context.annotation.CommonAnnotationBeanPostProcessor]: Constructor threw exception; nested exception is java.lang.NoClassDefFoundError: javax/naming/NamingException
+	at org.springframework.beans.BeanUtils.instantiateClass(BeanUtils.java:225) ~[spring-beans-5.3.4.jar:5.3.4]
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:87) ~[spring-beans-5.3.4.jar:5.3.4]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateBean(AbstractAutowireCapableBeanFactory.java:1308) ~[spring-beans-5.3.4.jar:5.3.4]
+	... 19 common frames omitted
+Caused by: java.lang.NoClassDefFoundError: javax/naming/NamingException
+	at org.springframework.context.annotation.CommonAnnotationBeanPostProcessor.<init>(CommonAnnotationBeanPostProcessor.java:177) ~[spring-context-5.3.4.jar:5.3.4]
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(Unknown Source) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(Unknown Source) ~[na:na]
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Unknown Source) ~[na:na]
+	at java.base/java.lang.reflect.Constructor.newInstance(Unknown Source) ~[na:na]
+	at org.springframework.beans.BeanUtils.instantiateClass(BeanUtils.java:212) ~[spring-beans-5.3.4.jar:5.3.4]
+	... 21 common frames omitted
+Caused by: java.lang.ClassNotFoundException: javax.naming.NamingException
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(Unknown Source) ~[na:na]
+	at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(Unknown Source) ~[na:na]
+	at java.base/java.lang.ClassLoader.loadClass(Unknown Source) ~[na:na]
+	... 28 common frames omitted
+
+Exception in Application init method
+Exception in thread "main" java.lang.RuntimeException: Exception in Application init method
+	at javafx.graphics/com.sun.javafx.application.LauncherImpl.launchApplication1(Unknown Source)
+	at javafx.graphics/com.sun.javafx.application.LauncherImpl.lambda$launchApplication$2(Unknown Source)
+	at java.base/java.lang.Thread.run(Unknown Source)
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'org.springframework.context.annotation.internalCommonAnnotationProcessor': Instantiation of bean failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [org.springframework.context.annotation.CommonAnnotationBeanPostProcessor]: Constructor threw exception; nested exception is java.lang.NoClassDefFoundError: javax/naming/NamingException
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateBean(AbstractAutowireCapableBeanFactory.java:1316)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1214)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:564)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:524)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:333)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:213)
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.registerBeanPostProcessors(PostProcessorRegistrationDelegate.java:237)
+	at org.springframework.context.support.AbstractApplicationContext.registerBeanPostProcessors(AbstractApplicationContext.java:761)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:566)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:767)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:759)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:426)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:326)
+	at org.springframework.boot.builder.SpringApplicationBuilder.run(SpringApplicationBuilder.java:144)
+	at aduial.ithildin.application.IthildinJfxApplication.init(IthildinJfxApplication.java:22)
+	... 3 more
+Caused by: org.springframework.beans.BeanInstantiationException: Failed to instantiate [org.springframework.context.annotation.CommonAnnotationBeanPostProcessor]: Constructor threw exception; nested exception is java.lang.NoClassDefFoundError: javax/naming/NamingException
+	at org.springframework.beans.BeanUtils.instantiateClass(BeanUtils.java:225)
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:87)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateBean(AbstractAutowireCapableBeanFactory.java:1308)
+	... 19 more
+Caused by: java.lang.NoClassDefFoundError: javax/naming/NamingException
+	at org.springframework.context.annotation.CommonAnnotationBeanPostProcessor.<init>(CommonAnnotationBeanPostProcessor.java:177)
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(Unknown Source)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Unknown Source)
+	at java.base/java.lang.reflect.Constructor.newInstance(Unknown Source)
+	at org.springframework.beans.BeanUtils.instantiateClass(BeanUtils.java:212)
+	... 21 more
+Caused by: java.lang.ClassNotFoundException: javax.naming.NamingException
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(Unknown Source)
+	at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(Unknown Source)
+	at java.base/java.lang.ClassLoader.loadClass(Unknown Source)
+	... 28 more
+Failed to launch JVM
+(ERROR)-(Exit Code 1)-(General error)
+(Fri Mar-3 2:11:19P)-:0)-(luthien:/Applications/Sandbox)-(16:       3)
+>

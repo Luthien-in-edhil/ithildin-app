@@ -1,7 +1,9 @@
 --name ${app.name}
 --icon ${project.basedir}/app-icon.icns
---input ${project.build.directory}/dependency
 --dest ${project.build.directory}
---app-version ${app.version}
---main-jar ithildin-0.2-SNAPSHOT.jar
+--main-jar ${project.build.finalName}.jar
 --main-class ${main-class}
+--input ${project.build.directory}/dependency
+--app-version ${app.version}
+--runtime-image ${project.build.directory}/jvm-image
+--temp ${project.build.directory}/installer-work
